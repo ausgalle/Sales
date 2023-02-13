@@ -1,2 +1,3 @@
 # Sales
-Aplicación de compras y ventas 
+# Aplicación de compras y ventas 
+## Introducción
