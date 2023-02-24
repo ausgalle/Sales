@@ -3,9 +3,9 @@ using Sales.Shared.Entities;
 
 namespace Sales.Api.Data
 {
-    public class DateContext : DbContext
+    public class DataContext : DbContext
     {
-        public DateContext(DbContextOptions<DateContext> options) : base(options)
+        public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
 
         }

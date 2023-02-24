@@ -10,7 +10,7 @@ using Sales.Api.Data;
 
 namespace Sales.Api.Migrations
 {
-    [DbContext(typeof(DateContext))]
+    [DbContext(typeof(DataContext))]
     [Migration("20230215224312_InitialDb")]
     partial class InitialDb
     {

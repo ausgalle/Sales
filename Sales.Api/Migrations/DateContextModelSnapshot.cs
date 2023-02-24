@@ -9,7 +9,7 @@ using Sales.Api.Data;
 
 namespace Sales.Api.Migrations
 {
-    [DbContext(typeof(DateContext))]
+    [DbContext(typeof(DataContext))]
     partial class DateContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

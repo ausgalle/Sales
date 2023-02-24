@@ -9,9 +9,9 @@ namespace Sales.Api.Controllers
 	[Route("/api/countries")]
 	public class CountriesController : ControllerBase
 	{
-		private readonly DateContext _context;
+		private readonly DataContext _context;
 
-		public CountriesController(DateContext context)
+		public CountriesController(DataContext context)
 		{
 			_context = context;
 		}
