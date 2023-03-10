@@ -13,14 +13,23 @@ else
 {
     <h3>@state.Name</h3>
 
+        <div class="mb-2" style="display: flex; flex-wrap:wrap; align-items: center;">
+        <div>
+            <a class="btn btn-primary" href="/cities/create/@StateId">Nueva Ciudad</a>
+            <a class="btn btn-success" href="/countries/details/@state.CountryId">Regresar</a>
+        </div>
+        <div class="mx-2">
+            <input style="width: 400px;" type="text" class="form-control" id="titulo" placeholder="Buscar ciudad..." @bind-value="Filter" />
+        </div>
+        <div>
+            <button type="button" class="btn btn-outline-primary" @onclick="ApplyFilterAsync">Filtrar</button>
+            <button type="button" class="btn btn-outline-danger" @onclick="CleanFilterAsync">Limpiar</button>
+        </div>
+    </div>
+
         <Pagination CurrentPage="currentPage"
             TotalPages="totalPages"
-            SelectedPage="SelectedPage" />
-
-    <div class="mb-2">
-        <a class="btn btn-primary" href="/cities/create/@state.Id">Nueva Ciuadad</a>
-        <a class="btn btn-success" href="/countries/details/@state.CountryId">Regresar</a>
-    </div>
+            SelectedPage="SelectedPageAsync" />
 
     <GenericList Mylist="cities!">
         <Body>
@@ -59,12 +68,21 @@ else
     [Parameter]
     public int StateId { get; set; }
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Page { get; set; } = "";
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Filter { get; set; } = "";
+
+
     protected override async Task OnInitializedAsync()
     {
         await LoadAsync();
     }
 
-    private async Task SelectedPage(int page)
+    private async Task SelectedPageAsync(int page)
     {
         currentPage = page;
         await LoadAsync(page);
@@ -73,15 +91,14 @@ else
 
     private async Task LoadAsync(int page = 1)
     {
-        string url1 = $"/api/cities?id={StateId}&page={page}";
-        string url2 = $"/api/cities/totalPages?id={StateId}";
-        var responseHppt = await repository.Get<State>($"/api/states/{StateId}");
+        string url1 = $"api/cities?id={StateId}&page={page}";
+        string url2 = $"api/cities/totalPages?id={StateId}";
+        var responseHppt = await repository.Get<State>($"api/states/{StateId}");
         var responseHppt2 = await repository.Get<List<City>>(url1);
         var responseHppt3 = await repository.Get<int>(url2);
         state = responseHppt.Response;
         cities = responseHppt2.Response;
         totalPages = responseHppt3.Response;
-
     }
 
     private async Task DeleteAsync(int cityId)
@@ -115,4 +132,18 @@ else
 
         await LoadAsync();
     }
+
+    private async Task CleanFilterAsync()
+    {
+        Filter = string.Empty;
+        await ApplyFilterAsync();
+    }
+
+    private async Task ApplyFilterAsync()
+    {
+        int page = 1;
+        await LoadAsync(page);
+        await SelectedPageAsync(page);
+    }
+
 }

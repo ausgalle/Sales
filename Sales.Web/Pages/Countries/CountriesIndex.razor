@@ -82,34 +82,18 @@
         currentPage = page;
         await LoadAsync(page);
     }
-
-
+    
     private async Task LoadAsync(int page = 1)
     {
-        if (!string.IsNullOrWhiteSpace(Page))
-        {
-            page = Convert.ToInt32(Page);
-        }
-
-        string url1 = string.Empty;
-        string url2 = string.Empty;
-
-        if (string.IsNullOrEmpty(Filter))
-        {
-            url1 = $"/api/countries?page={page}";
-            url2 = $"/api/countries/totalPages";
-        }
-        else
-        {
-            url1 = $"/api/countries?page={page}&filter={Filter}";
-            url2 = $"/api/countries/totalPages?filter={Filter}";
-        }
+        string url1 = $"api/countries?page={page}";
+        string url2 = $"api/countries/totalPages";
 
         var responseHppt = await repository.Get<List<Country>>(url1);
         var responseHppt2 = await repository.Get<int>(url2);
         Countries = responseHppt.Response!;
         totalPages = responseHppt2.Response!;
     }
+
 
     private async Task Delete(Country country)
     {
