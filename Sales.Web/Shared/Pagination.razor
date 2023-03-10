@@ -14,12 +14,19 @@
 @code {
     [Parameter] public int CurrentPage { get; set; } = 1;
     [Parameter] public int TotalPages { get; set; }
-    [Parameter] public int Radio { get; set; } = 5;
+    [Parameter] public int Radio { get; set; } = 4;
     [Parameter] public EventCallback<int> SelectedPage { get; set; }
     List<PageModel> Links = new();
 
     protected override void OnParametersSet()
     {
+
+        if((!(TotalPages <= 10)))
+        {
+            Radio = 10;
+        }
+
+
         Links = new List<PageModel>();
 
         var previousLinkEnable = CurrentPage != 1;
@@ -33,19 +40,27 @@
 
         for (int i = 1; i <= TotalPages; i++)
         {
-            if (i >= CurrentPage - Radio && i <= CurrentPage + Radio)
+            if (Links.Count() < Radio + 1)
             {
-                Links.Add(new PageModel
+                if (i >= CurrentPage - Radio + 1 && i <= CurrentPage + Radio)
+                {
+                    Links.Add(new PageModel
                     {
                         Page = i,
                         Enable = CurrentPage == i,
                         Text = $"{i}"
                     });
+                }
             }
+
         }
 
         var linkNextEnable = CurrentPage != TotalPages;
-        var linkNextPage = CurrentPage + 1;
+        var linkNextPage = CurrentPage;
+        if(TotalPages > CurrentPage){
+
+           linkNextPage = CurrentPage + 1;
+        }
         Links.Add(new PageModel
             {
                 Text = "Siguiente",

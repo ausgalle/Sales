@@ -95,28 +95,28 @@
         await LoadAsync(page);
     }
 
+    private int pageSize = 10;
 
     private async Task LoadAsync(int page = 1)
     {
-        if (!string.IsNullOrWhiteSpace(Page))
+         if (!string.IsNullOrWhiteSpace(Page))
         {
             page = Convert.ToInt32(Page);
         }
 
         string url1 = string.Empty;
         string url2 = string.Empty;
-
         if (string.IsNullOrEmpty(Filter))
         {
-            url1 = $"/api/states?id={Id}&page={page}";
-            url2 = $"api/states/totalPages?id={Id}";
+            url1 = $"/api/states?id={Id}&page={page}&pageSize={pageSize}";
+            url2 = $"/api/states/totalPages?id={Id}";
         }
         else
         {
             url1 = $"/api/states?id={Id}&page={page}&filter={Filter}";
             url2 = $"/api/states/totalPages?id={Id}&filter={Filter}";
         }
-
+         
         var responseHppt = await repository.Get<Country>($"/api/countries/{Id}");
         var responseHppt2 = await repository.Get<List<State>>(url1);
         var responseHppt3 = await repository.Get<int>(url2);

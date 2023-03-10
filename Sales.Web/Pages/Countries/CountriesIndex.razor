@@ -73,8 +73,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		var responseHttp = await repository.Get<List<Country>>("/api/countries");
-		Countries = responseHttp.Response;
+        await LoadAsync();
 	}
 
     private async Task SelectedPageAsync(int page)
@@ -85,8 +84,24 @@
     
     private async Task LoadAsync(int page = 1)
     {
-        string url1 = $"api/countries?page={page}";
-        string url2 = $"api/countries/totalPages";
+        if (!string.IsNullOrWhiteSpace(Page))
+        {
+            page = Convert.ToInt32(Page);
+        }
+
+        string url1 = string.Empty;
+        string url2 = string.Empty;
+
+        if (string.IsNullOrEmpty(Filter))
+        {
+            url1 = $"/api/countries?page={page}";
+            url2 = $"/api/countries/totalPages";
+        }
+        else
+        {
+            url1 = $"/api/countries?page={page}&filter={Filter}";
+            url2 = $"/api/countries/totalPages?filter={Filter}";
+        }
 
         var responseHppt = await repository.Get<List<Country>>(url1);
         var responseHppt2 = await repository.Get<int>(url2);

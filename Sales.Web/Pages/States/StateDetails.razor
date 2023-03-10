@@ -91,9 +91,26 @@ else
 
     private async Task LoadAsync(int page = 1)
     {
-        string url1 = $"api/cities?id={StateId}&page={page}";
-        string url2 = $"api/cities/totalPages?id={StateId}";
-        var responseHppt = await repository.Get<State>($"api/states/{StateId}");
+        if (!string.IsNullOrWhiteSpace(Page))
+        {
+            page = Convert.ToInt32(Page);
+        }
+
+        string url1 = string.Empty;
+        string url2 = string.Empty;
+
+        if (string.IsNullOrEmpty(Filter))
+        {
+            url1 = $"/api/cities?id={StateId}&page={page}";
+            url2 = $"/api/cities/totalPages?id={StateId}";
+        }
+        else
+        {
+            url1 = $"/api/cities?id={StateId}&page={page}&filter={Filter}";
+            url2 = $"/api/cities/totalPages?id={StateId}&filter={Filter}";
+        }
+         
+        var responseHppt = await repository.Get<State>($"/api/states/{StateId}");
         var responseHppt2 = await repository.Get<List<City>>(url1);
         var responseHppt3 = await repository.Get<int>(url2);
         state = responseHppt.Response;
