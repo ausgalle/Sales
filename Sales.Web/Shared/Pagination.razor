@@ -1,4 +1,6 @@
-﻿<nav>
+﻿<div class="custom-pagination-container">
+   
+<nav>
     <ul class="pagination">
 
         @foreach (var link in Links)
@@ -9,6 +11,49 @@
         }
     </ul>
 </nav>
+
+</div>
+
+<style>
+    .custom-pagination-container {
+        max-width: 500px;
+        margin: auto;
+        padding: 10px;
+        user-select: none;
+    }
+
+    .custom-pagination {
+        display: flex;
+        justify-content: center;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .custom-page-item {
+        margin: 0 5px;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+        .custom-page-item.active {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .custom-page-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+    .custom-page-link {
+        text-decoration: none;
+        color: inherit;
+    }
+</style>
+
+
 
 @code {
     [Parameter] public int CurrentPage { get; set; } = 1;
