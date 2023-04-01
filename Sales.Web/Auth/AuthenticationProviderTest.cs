@@ -16,7 +16,7 @@ namespace Sales.Web.Auth
             new Claim(ClaimTypes.Role, "Admin")
         },
        authenticationType: "test");
-            return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(anonimous)));
+            return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(usmeUser)));
         }
     }
 }
