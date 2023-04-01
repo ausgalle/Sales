@@ -3,7 +3,7 @@
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService swal
-
+@attribute [Authorize(Roles = "Admin")]
 
 <h3>Categorías</h3>
 
