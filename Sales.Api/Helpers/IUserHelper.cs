@@ -20,6 +20,11 @@ namespace Sales.Api.Helpers
 
         Task LogoutAsync();
 
+        Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword);
+
+        Task<IdentityResult> UpdateUserAsync(User user);
+
+
 
     }
 }
