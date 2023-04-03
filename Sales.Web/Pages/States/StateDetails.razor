@@ -16,8 +16,8 @@ else
 
         <div class="mb-2" style="display: flex; flex-wrap:wrap; align-items: center;">
         <div>
-            <a class="btn btn-primary" href="/cities/create/@StateId">Nueva Ciudad</a>
-            <a class="btn btn-success" href="/countries/details/@state.CountryId">Regresar</a>
+            <a class="btn btn btn-primary" @onclick=@(() => ShowModal())><i class="oi oi-plus"></i> Adicionar Ciudad</a>
+           <button class="btn btn-success" onclick="window.history.back()">Regresar</button>
         </div>
         <div class="mx-2">
             <input style="width: 400px;" type="text" class="form-control" id="titulo" placeholder="Buscar ciudad..." @bind-value="Filter" />
@@ -49,7 +49,7 @@ else
                                 @city.Name
                             </td>
                             <td>
-                                <a class="btn btn-warning" href="/cities/edit/@city.Id">Editar</a>
+                                <a @onclick=@(() => ShowModal(city.Id, true)) class="btn btn-warning"><i class="oi oi-pencil" /> Editar</a>
                                 <button class="btn btn-danger" @onclick=@(() => DeleteAsync(city.Id))>Borrar</button>
                             </td>
                         </tr>
@@ -65,6 +65,9 @@ else
     private List<City>? cities;
     private int currentPage = 1;
     private int totalPages;
+
+    [CascadingParameter]
+    IModalService Modal { get; set; } = default!;
 
     [Parameter]
     public int StateId { get; set; }
@@ -82,6 +85,28 @@ else
     {
         await LoadAsync();
     }
+
+     private async Task ShowModal(int id = 0, bool isEdit = false)
+    {
+        @using Pages.Cities
+        IModalReference modalReference;
+
+        if (isEdit)
+        {
+            modalReference = Modal.Show<CityEdit>(string.Empty, new ModalParameters().Add("CityId", id));
+        }
+        else
+        {
+            modalReference = Modal.Show<CityCreate>();
+        }
+
+        var result = await modalReference.Result;
+        if (result.Confirmed)
+        {
+            await LoadAsync();
+        }
+    }
+
 
     private async Task SelectedPageAsync(int page)
     {

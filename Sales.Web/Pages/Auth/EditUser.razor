@@ -6,7 +6,9 @@
 
 @if (user is null)
 {
-    <div class="spinner" />
+    <div style="display:flex; justify-content:center; align-items:center; height:100vh; flex-direction: column;">
+        <img src="/Gif/loading.gif" alt="Cargando..." style="margin-top: -50px;">
+    </div>
 }
 else
 {
@@ -17,7 +19,7 @@ else
             <div class="card-header">
                 <span>
                     <i class="oi oi-person" /> Editar Usuario
-                    <a class="btn btn-sm btn-secondary float-end" href="/changePassword"><i class="oi oi-key" /> Cambiar Contraseña</a>
+                    <a class="btn btn-sm btn-secondary float-end" @onclick=@(() => ShowModal())><i class="oi oi-plus"></i> Cambiar Contraseña</a>
                     <button class="btn btn-sm btn-primary float-end mx-2" type="submit"><i class="oi oi-check" /> Guardar Cambios</button>
                 </span>
             </div>
@@ -124,6 +126,9 @@ else
     private List<City>? cities;
     private string? imageUrl;
 
+    [CascadingParameter]
+    IModalService Modal { get; set; } = default!;
+
     protected override async Task OnInitializedAsync()
     {
         await LoadUserAsyc();
@@ -137,6 +142,20 @@ else
             user.Photo = null;
         }
 
+    }
+
+    private async Task ShowModal()
+    {
+        @using Pages.Auth;
+        IModalReference modalReference;
+
+        modalReference = Modal.Show<ChangePassword>();
+
+        var result = await modalReference.Result;
+        if (result.Confirmed)
+        {
+            await LoadUserAsyc();
+        }
     }
 
     private async Task LoadUserAsyc()
