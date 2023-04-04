@@ -6,7 +6,9 @@
 
 @if (Products is null)
 {
-    <div class="spinner" />
+    <div style="display:flex; justify-content:center; align-items:center; height:100vh; flex-direction: column;">
+        <img src="/Gif/loading.gif" alt="Cargando..." style="margin-top: -50px;">
+    </div>
 }
 else
 {
@@ -29,10 +31,6 @@ else
                             <button type="button" class="btn btn-outline-danger" @onclick="CleanFilterAsync"><i class="oi oi-ban" /> Limpiar</button>
                         </div>
                     </div>
-
-                    <Pagination CurrentPage="currentPage"
-                            TotalPages="totalPages"
-                            SelectedPage="SelectedPageAsync" />
 
                     <table class="table table-striped">
                         <thead>
@@ -82,6 +80,9 @@ else
                     </table>
                 </div>
             </div>
+            <Pagination CurrentPage="currentPage"
+                TotalPages="totalPages"
+                SelectedPage="SelectedPageAsync" />
         </Body>
     </GenericList>
 }
@@ -123,13 +124,13 @@ else
 
         if (string.IsNullOrEmpty(Filter))
         {
-            url1 = $"api/products?page={page}";
-            url2 = $"api/products/totalPages";
+            url1 = $"/api/products?page={page}";
+            url2 = $"/api/products/totalPages";
         }
         else
         {
-            url1 = $"api/products?page={page}&filter={Filter}";
-            url2 = $"api/products/totalPages?filter={Filter}";
+            url1 = $"/api/products?page={page}&filter={Filter}";
+            url2 = $"/api/products/totalPages?filter={Filter}";
         }
 
         try
