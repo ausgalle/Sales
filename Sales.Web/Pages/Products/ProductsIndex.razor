@@ -163,7 +163,7 @@ else
             return;
         }
 
-        var responseHTTP = await repository.Delete($"api/products/{productId}");
+        var responseHTTP = await repository.Delete($"/api/products/{productId}");
 
         if (responseHTTP.Error)
         {
