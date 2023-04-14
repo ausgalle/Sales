@@ -1,8 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Sales.Api.Data;
+using Sales.Api.Helpers;
 using Sales.API.Helpers;
 using Sales.Shared.DTOs;
+using Sales.Shared.Entities;
+using Sales.Shared.Enums;
 
 namespace Sales.API.Controllers
 {
@@ -11,11 +16,36 @@ namespace Sales.API.Controllers
     [Route("/api/sales")]
     public class SalesController : ControllerBase
     {
+        private readonly DataContext _context;
         private readonly IOrdersHelper _ordersHelper;
+        private readonly IUserHelper _userHelper;
 
-        public SalesController(IOrdersHelper ordersHelper)
+        public SalesController(DataContext context, IOrdersHelper ordersHelper, IUserHelper userHelper)
         {
+            _context = context;
             _ordersHelper = ordersHelper;
+            _userHelper = userHelper;
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult> Get(int id)
+        {
+            var sale = await _context.Sales
+                .Include(s => s.User!)
+                .ThenInclude(u => u.City!)
+                .ThenInclude(c => c.State!)
+                .ThenInclude(s => s.Country)
+                .Include(s => s.SaleDetails!)
+                .ThenInclude(sd => sd.Product)
+                .ThenInclude(p => p.ProductImages)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (sale == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(sale);
         }
 
         [HttpPost]
@@ -29,5 +59,103 @@ namespace Sales.API.Controllers
 
             return BadRequest(response.Message);
         }
+
+        [HttpGet]
+        public async Task<ActionResult> Get([FromQuery] PaginationDTO pagination)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == User.Identity!.Name);
+            if (user == null)
+            {
+                return BadRequest("User not valid.");
+            }
+
+            var queryable = _context.Sales
+                .Include(s => s.User)
+                .Include(s => s.SaleDetails)
+                .ThenInclude(sd => sd.Product)
+                .AsQueryable();
+
+            var isAdmin = await _userHelper.IsUserInRoleAsync(user, UserType.Admin.ToString());
+            if (!isAdmin)
+            {
+                queryable = queryable.Where(s => s.User!.Email == User.Identity!.Name);
+            }
+
+            return Ok(await queryable
+                .OrderByDescending(x => x.Date)
+                .Paginate(pagination)
+                .ToListAsync());
+        }
+
+        [HttpGet("totalPages")]
+        public async Task<ActionResult> GetPages([FromQuery] PaginationDTO pagination)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == User.Identity!.Name);
+            if (user == null)
+            {
+                return BadRequest("User not valid.");
+            }
+
+            var queryable = _context.Sales
+                .AsQueryable();
+
+            var isAdmin = await _userHelper.IsUserInRoleAsync(user, UserType.Admin.ToString());
+            if (!isAdmin)
+            {
+                queryable = queryable.Where(s => s.User!.Email == User.Identity!.Name);
+            }
+
+            double count = await queryable.CountAsync();
+            double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
+            return Ok(totalPages);
+        }
+
+        [HttpPut]
+        public async Task<ActionResult> Put(SaleDTO saleDTO)
+        {
+            var user = await _userHelper.GetUserAsync(User.Identity!.Name!);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var isAdmin = await _userHelper.IsUserInRoleAsync(user, UserType.Admin.ToString());
+            if (!isAdmin)
+            {
+                return BadRequest("Solo permitido para administradores.");
+            }
+
+            var sale = await _context.Sales
+                .Include(s => s.SaleDetails)
+                .FirstOrDefaultAsync(s => s.Id == saleDTO.Id);
+            if (sale == null)
+            {
+                return NotFound();
+            }
+
+            if (saleDTO.OrderStatus == OrderStatus.Cancelado)
+            {
+                await ReturnStockAsync(sale);
+            }
+
+            sale.OrderStatus = saleDTO.OrderStatus;
+            _context.Update(sale);
+            await _context.SaveChangesAsync();
+            return Ok(sale);
+        }
+
+        private async Task ReturnStockAsync(Sale sale)
+        {
+            foreach (var saleDetail in sale.SaleDetails!)
+            {
+                var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == saleDetail.ProductId);
+                if (product != null)
+                {
+                    product.Stock += saleDetail.Quantity;
+                }
+            }
+            await _context.SaveChangesAsync();
+        }
+
     }
 }
