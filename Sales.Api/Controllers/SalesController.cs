@@ -27,6 +27,7 @@ namespace Sales.API.Controllers
             _userHelper = userHelper;
         }
 
+
         [HttpGet("{id:int}")]
         public async Task<ActionResult> Get(int id)
         {
@@ -120,7 +121,7 @@ namespace Sales.API.Controllers
             }
 
             var isAdmin = await _userHelper.IsUserInRoleAsync(user, UserType.Admin.ToString());
-            if (!isAdmin)
+            if (!isAdmin && saleDTO.OrderStatus != OrderStatus.Cancelado)
             {
                 return BadRequest("Solo permitido para administradores.");
             }
